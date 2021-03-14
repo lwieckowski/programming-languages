@@ -34,16 +34,13 @@ fun dates_in_months (dates : (int * int * int) list, months : int list) =
     else dates_in_months (dates, tl months) @ dates_in_month (dates, hd months)
 
 fun get_nth (words : string list, n : int) =
-    if null words then hd words
-    else
-	if n = 1
-	then hd words
-	else get_nth (tl words, n-1)
+    if n = 1
+    then hd words
+    else get_nth (tl words, n-1)
 
 fun date_to_string (date : int * int * int) =
-    let val months = ["January", "February", "March",
-		      "April", "May", "June",
-		      "July", "August", "September",
+    let val months = ["January", "February", "March", "April",
+		      "May", "June", "July", "August", "September",
 		      "October", "November", "December"]
 	val year = Int.toString (#1 date)
 	val month = get_nth (months, #2 date)
@@ -51,14 +48,9 @@ fun date_to_string (date : int * int * int) =
     in month ^ " " ^ day ^ ", " ^ year end
 
 fun number_before_reaching_sum (sum : int, numbers : int list) =
-    if null numbers then 0
-    else
-	let val counter = number_before_reaching_sum (sum - hd numbers, tl numbers)
-	in
-	    if sum - hd numbers > 0
-	    then counter + 1
-	    else counter
-	end
+    if sum <= hd numbers
+    then 0
+    else number_before_reaching_sum (sum - hd numbers, tl numbers) + 1
 
 fun what_month (day_in_year_number : int) =
     let val days_in_months = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
@@ -66,11 +58,7 @@ fun what_month (day_in_year_number : int) =
 
 fun month_range (day1 : int, day2: int) =
     if day1 > day2 then []
-    else
-	let val month = what_month(day1)
-	in if day1 = day2 then [month]
-	   else month::month_range(day1 + 1, day2)
-	end
+    else  what_month(day1)::month_range(day1 + 1, day2)
 
 fun oldest  (dates : (int * int * int) list) =
     if null dates then NONE
