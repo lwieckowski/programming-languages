@@ -43,35 +43,54 @@ fun dates_in_months (dates : (int * int * int) list, months : int list) =
     if null months then []
     else dates_in_months (dates, tl months) @ dates_in_month (dates, hd months)
 
+fun get_nth (words : string list, n : int) =
+    if null words then hd words
+    else
+	if n = 1
+	then hd words
+	else get_nth (tl words, n-1)
 
-(* Tests *)
+fun date_to_string (date : int * int * int) =
+    let val months = ["January", "February", "March",
+		      "April", "May", "June",
+		      "July", "August", "September",
+		      "October", "November", "December"]
+	val year = Int.toString (#1 date)
+	val month = get_nth (months, #2 date)
+	val day = Int.toString (#3 date)
+    in month ^ " " ^ day ^ ", " ^ year end
 
-val test13 = is_older ((2020,12,28),(2021,12,28)) = true
-val test14 = is_older ((2020,11,28),(2020,12,28)) = true
-val test15 = is_older ((2020,12,27),(2020,12,28)) = true
-val test16 = is_older ((2020,12,28),(2020,12,28)) = false
-val test17 = is_older ((2020,12,29),(2020,12,28)) = false
-val test18 = is_older ((2020,12,28),(2020,11,28)) = false
-val test19 = is_older ((2021,12,28),(2020,12,28)) = false
+fun number_before_reaching_sum (sum : int, numbers : int list) =
+    if null numbers then 0
+    else
+	let val remaining_sum = sum - hd numbers
+	    val counter = number_before_reaching_sum (remaining_sum, tl numbers)
+	in
+	    if remaining_sum > 0
+	    then counter + 1
+	    else counter
+	end
 
-val test20 = number_in_month ([(2020,11,12), (2021,12,23)], 11) = 1
-val test21 = number_in_month ([(2020,12,23), (2021,12,21)], 12) = 2
-val test22 = number_in_month ([(2020,12,23), (2021,12,21)], 10) = 0
-val test23 = number_in_month ([], 10) = 0
+fun what_month (day_in_year_number : int) =
+    let val days_in_months = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
+    in number_before_reaching_sum (day_in_year_number, days_in_months) + 1
+    end
 
-val test24 = number_in_months ([(2020,11,12), (2021,12,23)], [11, 10]) = 1
-val test25 = number_in_months ([(2020,12,23), (2021,10,21)], [12, 10, 5]) = 2
-val test26 = number_in_months ([(2020,12,23), (2021,12,21)], [10]) = 0
-val test27 = number_in_months ([], [10, 6]) = 0
-val test28 = number_in_months ([(2020,12,23), (2021,12,21)], []) = 0
-val test29 = number_in_months ([], []) = 0
+fun month_range (day1 : int, day2: int) =
+    if day1 > day2 then []
+    else
+	let fun build_range (n1, n2) =
+		if n1 = n2 then [n1]
+		else n1::build_range(n1 + 1, n2)
+	in build_range (what_month (day1), what_month (day2))
+	end
 
-val test30 = dates_in_month ([(2020,11,12), (2021,12,23)], 11) = [(2020,11,12)]
-val test31 = dates_in_month ([(2020,11,12), (2021,12,23)], 10) = []
-val test32 = dates_in_month ([], 11) = []
-val test33 = dates_in_month ([(2020,11,12), (2021,11,23)], 11) = [(2020,11,12), (2021,11,23)]
-
-val test34 = dates_in_months ([(2020,11,12), (2021,12,23)], [11]) = [(2020,11,12)]
-val test35 = dates_in_months ([(2020,11,12), (2021,12,23)], [10]) = []
-val test36 = dates_in_months ([], [11]) = []
-val test37 = dates_in_months ([(2020,12,12), (2021,11,23)], [11, 12, 9]) = [(2020,12,12), (2021,11,23)]
+fun oldest  (dates : (int * int * int) list) =
+    if null dates then NONE
+    else
+	let val tail_oldest = oldest (tl dates)
+	in
+	    if isSome tail_oldest andalso is_older (hd dates, valOf tail_oldest)
+	    then tail_oldest
+	    else SOME (hd dates)
+	end
