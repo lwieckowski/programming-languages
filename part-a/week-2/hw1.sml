@@ -51,10 +51,8 @@ fun get_nth (words : string list, n : int) =
 	else get_nth (tl words, n-1)
 
 fun date_to_string (date : int * int * int) =
-    let val months = ["January", "February", "March",
-		      "April", "May", "June",
-		      "July", "August", "September",
-		      "October", "November", "December"]
+    let val months = ["January", "February", "March", "April", "May", "June",
+		      "July", "August", "September", "October", "November", "December"]
 	val year = Int.toString (#1 date)
 	val month = get_nth (months, #2 date)
 	val day = Int.toString (#3 date)
@@ -79,10 +77,9 @@ fun what_month (day_in_year_number : int) =
 fun month_range (day1 : int, day2: int) =
     if day1 > day2 then []
     else
-	let fun build_range (n1, n2) =
-		if n1 = n2 then [n1]
-		else n1::build_range(n1 + 1, n2)
-	in build_range (what_month (day1), what_month (day2))
+	let val month = what_month(day1)
+	in if day1 = day2 then [month]
+	   else month::month_range(day1 + 1, day2)
 	end
 
 fun oldest  (dates : (int * int * int) list) =
@@ -90,7 +87,7 @@ fun oldest  (dates : (int * int * int) list) =
     else
 	let val tail_oldest = oldest (tl dates)
 	in
-	    if isSome tail_oldest andalso is_older (hd dates, valOf tail_oldest)
+	    if isSome tail_oldest andalso is_older (valOf tail_oldest, hd dates)
 	    then tail_oldest
 	    else SOME (hd dates)
 	end

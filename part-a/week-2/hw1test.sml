@@ -1,4 +1,4 @@
-use "hw1.sml"
+use "hw1.sml";
 
 (* Homework1 Simple Test *)
 (* These are basic test cases. Passing these tests does not guarantee that your code will pass the actual homework grader *)
@@ -56,7 +56,7 @@ val test33 = dates_in_month ([(2020,11,12), (2021,11,23)], 11) = [(2020,11,12), 
 val test34 = dates_in_months ([(2020,11,12), (2021,12,23)], [11]) = [(2020,11,12)]
 val test35 = dates_in_months ([(2020,11,12), (2021,12,23)], [10]) = []
 val test36 = dates_in_months ([], [11]) = []
-val test37 = dates_in_months ([(2020,12,12), (2021,11,23)], [11, 12, 9]) = [(2020,12,12), (2021,11,23)]
+val test37 = dates_in_months ([(2020, 8, 12), (2020,12,12), (2021,11,23)], [11, 12, 9]) = [(2020,12,12), (2021,11,23)]
 
 val test38 = get_nth (["9", "g", "r"], 2) = "g"
 
@@ -84,8 +84,8 @@ val test57 = what_month (90) = 3
 val test58 = what_month (365) = 12
 
 val test59 = month_range (2, 1) = []
-val test60 = month_range (1, 2) = [1]
-val test61 = month_range (1, 365) = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+val test60 = month_range (1, 2) = [1, 1]
+val test61 = month_range (30, 34) = [1, 1, 2, 2, 2]
 
-val test62 = oldest ([(2020, 12, 28), (2021, 12, 28)]) = SOME((2021, 12, 28))
+val test62 = oldest ([(2020, 12, 28), (2021, 12, 28)]) = SOME((2020, 12, 28))
 val test63 = oldest ([]) = NONE
