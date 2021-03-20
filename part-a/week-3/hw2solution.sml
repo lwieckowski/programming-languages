@@ -8,6 +8,25 @@ fun same_string(s1 : string, s2 : string) =
 
 (* put your solutions for problem 1 here *)
 
+fun all_except_option (word, words) =
+    let fun aux (visited, xs) =
+	    case xs of
+		[] => NONE
+	      | head::tail => if same_string(head, word)
+			      then SOME (visited @ tail)
+			      else aux (head::visited, tail)
+    in aux ([], words) end
+
+
+fun get_substitutions1 (substitutions, s) =
+    case substitutions of
+	[] => []
+      | hd::tl => let val sub_opt = all_except_option (s, hd)
+		  in case sub_opt of
+			 NONE => get_substitutions1 (tl, s)
+		       | SOME sub => sub @ get_substitutions1 (tl, s)
+		  end
+
 (* you may assume that Num is always used with values 2, 3, ..., 10
    though it will not really come up *)
 datatype suit = Clubs | Diamonds | Hearts | Spades
