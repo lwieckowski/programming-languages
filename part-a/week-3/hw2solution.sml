@@ -21,21 +21,17 @@ fun all_except_option (x, xs) =
 fun get_substitutions1 (subs, s) =
     case subs of
 	[] => []
-      | hd::tl => let val matches = all_except_option (s, hd)
-		  in case matches of
+      | hd::tl => case all_except_option (s, hd) of
 			 NONE => get_substitutions1 (tl, s)
 		       | SOME sub => sub @ get_substitutions1 (tl, s)
-		  end
 
 fun get_substitutions2 (subs, s) =
     let fun aux (subs, acc) =
 	    case subs of
 		[] => acc
-	      | hd::tl => let val matches = all_except_option (s, hd)
-			  in case matches of
-				 NONE => aux (tl, acc)
-			       | SOME sub => aux (tl, acc @ sub)
-			  end
+	      | hd::tl => case all_except_option (s, hd) of
+			      NONE => aux (tl, acc)
+			    | SOME sub => aux (tl, acc @ sub)
     in aux (subs, []) end
 
 fun similar_names (subs, {first, middle, last}) =
