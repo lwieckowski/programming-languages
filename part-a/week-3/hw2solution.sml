@@ -1,4 +1,4 @@
-(* Dan Grossman, Coursera PL, HW2 Provided Code *)
+(* Coursera Programming Languages, Assignment 2, L. Wieckowski, 2021 *)
 
 (* if you use this function to compare two strings (returns true if the same
    string), then you avoid several of the functions in problem 1 having
@@ -8,24 +8,43 @@ fun same_string(s1 : string, s2 : string) =
 
 (* put your solutions for problem 1 here *)
 
-fun all_except_option (word, words) =
-    let fun aux (visited, xs) =
+fun all_except_option (x, xs) =
+    let fun reverse (xs, res) = case xs of [] => res | hd::tl => reverse(tl, hd::res)
+	fun aux (visited, xs) =
 	    case xs of
 		[] => NONE
-	      | head::tail => if same_string(head, word)
-			      then SOME (visited @ tail)
-			      else aux (head::visited, tail)
-    in aux ([], words) end
+	      | hd::tl => if same_string(hd, x)
+			      then SOME (reverse (visited, []) @ tl)
+			      else aux (hd::visited, tl)
+    in aux ([], xs) end
 
-
-fun get_substitutions1 (substitutions, s) =
-    case substitutions of
+fun get_substitutions1 (subs, s) =
+    case subs of
 	[] => []
-      | hd::tl => let val sub_opt = all_except_option (s, hd)
-		  in case sub_opt of
+      | hd::tl => let val matches = all_except_option (s, hd)
+		  in case matches of
 			 NONE => get_substitutions1 (tl, s)
 		       | SOME sub => sub @ get_substitutions1 (tl, s)
 		  end
+
+fun get_substitutions2 (subs, s) =
+    let fun aux (subs, acc) =
+	    case subs of
+		[] => acc
+	      | hd::tl => let val matches = all_except_option (s, hd)
+			  in case matches of
+				 NONE => aux (tl, acc)
+			       | SOME sub => aux (tl, acc @ sub)
+			  end
+    in aux (subs, []) end
+
+fun similar_names (subs, {first, middle, last}) =
+    let val sub = get_substitutions2 (subs, first)
+	fun aux (sub, ans) =
+	    case sub of
+		[] => {first=first, middle=middle, last=last}::ans
+	      | hd::tl => aux(tl, {first=hd, middle=middle, last=last}::ans)
+    in aux(sub, []) end
 
 (* you may assume that Num is always used with values 2, 3, ..., 10
    though it will not really come up *)
@@ -39,3 +58,61 @@ datatype move = Discard of card | Draw
 exception IllegalMove
 
 (* put your solutions for problem 2 here *)
+
+fun card_color card =
+    case card of
+	(Spades, _) => Black
+      | (Clubs, _) => Black
+      | (Diamonds, _) => Red
+      | (Hearts, _) => Red
+
+fun card_value card =
+    case card of
+	(_, Num(value)) => value
+      | (_, Ace) => 11
+      | (_, _) => 10
+
+fun remove_card (cs, c, e) =
+    let fun aux (cs, acc) =
+	    case cs of
+		[] => raise e
+	      | hd::tl => if hd = c
+			  then acc @ tl
+			  else aux (tl, hd::acc)
+    in aux (cs, []) end
+
+fun all_same_color cs =
+    case cs of
+	hd::nk::tl => card_color (hd) = card_color (nk) andalso all_same_color (nk::tl)
+      | _ => true
+
+fun sum_cards cs =
+    let fun sum (cs, acc) =
+	    case cs of
+		[] => acc
+	      | hd::tl => sum (tl, acc + card_value (hd))
+    in sum (cs, 0) end
+
+fun score (cs, goal) =
+    let fun prelim_score (sum) =
+	    if sum > goal
+	    then 3 * (sum - goal)
+	    else goal - sum
+    in
+	if all_same_color cs then prelim_score (sum_cards cs) div 2 else prelim_score (sum_cards cs)
+    end
+
+fun officiate (cards, moves, goal) =
+    let fun aux(cards, held_cards, moves) =
+	    case  (cards, moves) of
+		(_, []) => score(held_cards, goal)
+	      | (_, (Discard c)::mtl) => let val held = remove_card(held_cards, c, IllegalMove)
+					in aux(cards, held, mtl) end
+	      | ([], (Draw)::_) => score(held_cards, goal)
+	      | (chd::ctl, (Draw)::mtl) => let val held = chd::held_cards
+				       in
+					   if sum_cards(held) > goal
+					   then score(held, goal)
+					   else aux(ctl, held, mtl)
+				       end
+    in aux(cards, [], moves) end
