@@ -65,9 +65,8 @@ val rev_string = String.implode o List.rev o String.explode
 fun first_answer f xs =
     case xs of
 	[] => raise NoAnswer
-      | x::xs' => if f x = SOME x
-		  then x
-		  else first_answer f xs'
+      | x::xs' => case f x of NONE => first_answer f xs'
+			    | SOME y => y
 
 fun all_answers f xs =
     let fun helper (ys, acc) =
@@ -118,8 +117,5 @@ fun match (v, p) =
       | (_, _) => NONE
 
 fun first_match v ps =
-    case ps of
-	[] => NONE
-      | p::ps' => if match (v, p) <> NONE
-		  then match (v, p)
-		  else first_match v ps'
+    SOME (first_answer (fn p => match (v, p)) ps)
+    handle NoAnswer => NONE
